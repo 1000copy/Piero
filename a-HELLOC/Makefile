@@ -10,5 +10,7 @@ bbi_correct.exe: big_bang_inplace.cpp logger.c
 bbi_bang.exe: big_bang_inplace.cpp logger.c
 	g++.exe -DBANG_NOW -Wno-write-strings -mwindows  -static  big_bang_inplace.cpp logger.c -o $@
 clean:
-	rm *.exe	
+	rm piero.txt
+	rm *.exe
 	rm *.res
+	
