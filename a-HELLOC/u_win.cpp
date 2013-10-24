@@ -136,18 +136,14 @@ class app{
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 
-	// _log("get hwnd:%d",hwnd);
 	if (msg == WM_CREATE){
 		// _log("mount this with hwnd:%d",hwnd);
-		LONG this_ = (LONG) (((LPCREATESTRUCT) lp)->lpCreateParams) ;
+		LONG this_ = (LONG) (((LPCREATESTRUCT) lp)->lpCreateParams);
 		SetWindowLong(hwnd,GWL_USERDATA,this_);
 	}
 	long v = GetWindowLong(hwnd,GWL_USERDATA);
-	// assert(v);
-	// _log("v:%d",v);
 	win *p = (win*)v;
-	// assert(p);	
-	return p->_proc(hwnd,msg,wp,lp);	
+	return p->_proc(hwnd,msg,wp,lp);
 }
 
 

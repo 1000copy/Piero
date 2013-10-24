@@ -28,8 +28,7 @@ public:
 	}
 	HWND create_label(LPCWSTR text,int x,int y,int w,int h,HWND hwnd,int id){
 	 	HWND hwndedit = CreateWindowW(L"STATIC", text, WS_CHILD | WS_VISIBLE | SS_LEFT,
-	            x,y,w,h,hwnd, (HMENU) id, NULL, NULL);
-	  // set_font(hwndedit,8);
+	            x,y,w,h,hwnd, (HMENU) id, NULL, NULL);	  
 	  return hwndedit;
 	}
 };
@@ -38,7 +37,6 @@ public:
 int PASCAL WinMain(HINSTANCE hinst, HINSTANCE pinst, LPSTR cmdline, int show)
 {
 	dictwin *w = new dictwin(hinst, pinst,show);
-	// w->set_rect(CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT);
 	w->set_rect(100,100,300,200);
 	app a (w);
 	return a.main(hinst,cmdline,show);
