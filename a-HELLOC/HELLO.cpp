@@ -4,6 +4,7 @@
 
 #include "u_win.cpp"
 #include "u_robot.cpp"
+#include "u_shortcut.h"
 
 class dictwin:public win{
 private:
@@ -31,7 +32,7 @@ public:
   	LRESULT on_button(int ctl_id,HWND ctl_hwnd){  		
   		if (ctl_hwnd == hwnd_button){
   			// get edit text
-	  		int len = GetWindowTextLengthW(hwnd_edit) + 1;         
+			int len = GetWindowTextLengthW(hwnd_edit) + 1;         
 			char text[len];
 			GetWindowText(hwnd_edit, text, len);
 			// set window text 
@@ -40,17 +41,17 @@ public:
 			robot r ;
 			char buffer1[1000];
 			int rlen = r.get_badrobot(text,buffer1,sizeof(buffer1));
-		       if (rlen >0) {
-	              SetWindowText(hstatic, buffer1);
-		       }else{                    
-		          wchar_t buffer[1000];
-		          if(rlen ==-1)
-		            wcscpy(buffer,L"要联网哦");// raw string is utf-8 ,because the source code file is utf-8 encoded file 
-		          else
-		            wcscpy(buffer,L"好刁钻的单词");
-		          SetWindowTextW(hstatic,buffer);
-		       }
-		      SendMessage(hwnd_edit, EM_SETSEL, 0, -1);
+			if (rlen >0) {
+			  SetWindowText(hstatic, buffer1);
+			}else{                    
+			  wchar_t buffer[1000];
+			  if(rlen ==-1)
+			    wcscpy(buffer,L"要联网哦");// raw string is utf-8 ,because the source code file is utf-8 encoded file 
+			  else
+			    wcscpy(buffer,L"好刁钻的单词");
+			  SetWindowTextW(hstatic,buffer);
+			}
+			SendMessage(hwnd_edit, EM_SETSEL, 0, -1);
 		}
   		return 0;
   	}
@@ -63,6 +64,7 @@ public:
   		hwnd_button = create_button(L"query",20,x+80, w, 40);
   		hstatic = create_label(L"ready",20, x+120, w, 40);
   		SetFocus(hwnd_edit);
+  		create_link(TRUE);
 	  	return 0;
 	}
 	
