@@ -9,14 +9,45 @@ class win{
 	HINSTANCE pinst;
 	int show;
 	int x,y,w,h;
+	
   protected:
+  	HWND hwnd;
   	virtual LRESULT on_paint(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)=0;
-  	LRESULT on_crt(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp){
-  		_log("base into ");
+  	virtual LRESULT on_button(int ctl_id,HWND ctl_hwnd){  		
   		return 0;
   	}
+  	virtual LRESULT on_create(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp){
+  		// _log("base into ");
+  		return 0;
+  	}
+  	HWND create_ctl(LPCWSTR ctl_type ,LPCWSTR text,int x,int y,int w,int h,HWND hwnd,int id){
+		// DWORD style = WS_CHILD | WS_VISIBLE | SS_LEFT  ;
+		// if (strcmp(ctl_type,L"edit" ) == 0)
+		// 	 style = style |WS_BORDER|WS_TABSTOP ;
+		DWORD style = WS_CHILD | WS_VISIBLE | SS_LEFT  |WS_BORDER|WS_TABSTOP ;
+	 	HWND hwndedit = CreateWindowW(ctl_type, text,style ,
+	            x,y,w,h,hwnd, (HMENU) id, NULL, NULL);	  
+	  return hwndedit;
+	}  	
   public:
-  	
+  	HWND create_label(LPCWSTR text,int x,int y,int w,int h,HWND hwnd,int id){
+	 	return  create_ctl(L"STATIC", text,x,y,w,h,hwnd, id);	  	
+	}
+	HWND create_edit(LPCWSTR text,int x,int y,int w,int h,HWND hwnd,int id){
+	 	return  create_ctl(L"edit", text,x,y,w,h,hwnd, id);	  	
+	}
+	HWND create_button(LPCWSTR text,int x,int y,int w,int h,HWND hwnd,int id){
+	 	return  create_ctl(L"button", text,x,y,w,h,hwnd, id);	  	
+	}
+	HWND get_rootwindow(){
+	  HWND w =GetActiveWindow();
+	  HWND last ;
+	  while(w !=NULL){
+	    last = w;
+	    w= GetParent(last);
+	  }
+	  return last ;
+	}
   	win(HINSTANCE hinsta, HINSTANCE pinsta,int showa){
   		winproc = WndProc ;
   		hinst = hinsta ;
@@ -33,13 +64,7 @@ class win{
 		switch(msg) {
 		case WM_CREATE:
 		{
-			_log("before create");
-			// assert(this);
-			// call 0x1234(this, 1,2);
-			// var test = this[100];
-			// call test(this, 1, 2)
-			on_crt(hwnd,msg,wp,lp);
-			_log("after create");
+			on_create(hwnd,msg,wp,lp);			
 			break;
 		}
 		case WM_PAINT:
@@ -49,11 +74,9 @@ class win{
 		}
 		case WM_COMMAND:
 		{
-			switch (wp) {
-			case IDCANCEL:
-				SendMessage(hwnd, WM_CLOSE, 0, 0);
-				break;
-			}
+			if (HIWORD(wp) == BN_CLICKED) {
+				 on_button(LOWORD(wp),(HWND)lp);  
+            }
 			break;
 		}
 		case WM_DESTROY:
@@ -66,9 +89,7 @@ class win{
 		}
 		return 0;
   	}
-  	void main(){
-  		_log("win.main");
-  		HWND hwnd;
+  	void main(){  		
   		if (pinst==NULL) 
 		{
 			WNDCLASS wndcls;
@@ -86,22 +107,14 @@ class win{
 
 			RegisterClass(&wndcls);
 		}
-		_log("win.main.CreateWindow");
 		hwnd = CreateWindow("HELLOWIN",		 /* class name */
 			"HELLO--The C version",				 /* title */
 			WS_OVERLAPPEDWINDOW,					 /* window style */
-			x,y,w,h,
-			// 0,0,100,100
+			x,y,w,h,			
 			NULL,										 /* parent */
 			NULL,										 /* menu */
 			hinst,									 /* module instance */
 			this);									 /* create param */
-		// bind win -- hwnd 
-		// _log("win.main.CreateWindow.after");
-	 //    assert(this);
-	 //    _log("set hwnd:%d",hwnd);
-		// SetWindowLong(hwnd,GWL_USERDATA,(LONG)this);
-		// SetWindowLong(hwnd,GWL_USERDATA,(LONG)1999);
 		ShowWindow(hwnd, show);
 		UpdateWindow(hwnd);
   	}
@@ -126,8 +139,7 @@ class app{
 	}
 	int PASCAL main(HINSTANCE hinst, LPSTR cmdline, int show)
 	{		
-		assert(w);
-		_log("app.main");
+		assert(w);		
 		w->main();
 		return loop();
 	}
