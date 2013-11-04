@@ -58,10 +58,10 @@ public:
   	{		  		
   		int x = 5;
   		int w = 200;
-  		create_label(L"type word...",20, x, w, 40,hwnd, 1);
-  		hwnd_edit = create_edit(L"SOME",20, x+40, w, 40,hwnd, 1);
-  		hwnd_button = create_button(L"query",20,x+80, w, 40,hwnd, 1);
-  		hstatic = create_label(L"ready",20, x+120, w, 40,hwnd, 1);
+  		create_label(L"type word...",20, x, w, 40);
+  		hwnd_edit = create_edit(L"SOME",20, x+40, w, 40);
+  		hwnd_button = create_button(L"query",20,x+80, w, 40);
+  		hstatic = create_label(L"ready",20, x+120, w, 40);
   		SetFocus(hwnd_edit);
 	  	return 0;
 	}

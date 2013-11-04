@@ -11,7 +11,7 @@ class win{
 	int x,y,w,h;
 	
   protected:
-  	HWND hwnd;
+  	HWND hwnd_handle;
   	virtual LRESULT on_paint(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)=0;
   	virtual LRESULT on_button(int ctl_id,HWND ctl_hwnd){  		
   		return 0;
@@ -20,24 +20,25 @@ class win{
   		// _log("base into ");
   		return 0;
   	}
-  	HWND create_ctl(LPCWSTR ctl_type ,LPCWSTR text,int x,int y,int w,int h,HWND hwnd,int id){
+  	HWND create_ctl(LPCWSTR ctl_type ,LPCWSTR text,int x,int y,int w,int h){
 		// DWORD style = WS_CHILD | WS_VISIBLE | SS_LEFT  ;
 		// if (strcmp(ctl_type,L"edit" ) == 0)
 		// 	 style = style |WS_BORDER|WS_TABSTOP ;
+		int id = 0;		
 		DWORD style = WS_CHILD | WS_VISIBLE | SS_LEFT  |WS_BORDER|WS_TABSTOP ;
 	 	HWND hwndedit = CreateWindowW(ctl_type, text,style ,
-	            x,y,w,h,hwnd, (HMENU) id, NULL, NULL);	  
+	            x,y,w,h,hwnd_handle, (HMENU) id, NULL, NULL);	  
 	  return hwndedit;
 	}  	
   public:
-  	HWND create_label(LPCWSTR text,int x,int y,int w,int h,HWND hwnd,int id){
-	 	return  create_ctl(L"STATIC", text,x,y,w,h,hwnd, id);	  	
+  	HWND create_label(LPCWSTR text,int x,int y,int w,int h){  		
+	 	return  create_ctl(L"STATIC", text,x,y,w,h);	  	
 	}
-	HWND create_edit(LPCWSTR text,int x,int y,int w,int h,HWND hwnd,int id){
-	 	return  create_ctl(L"edit", text,x,y,w,h,hwnd, id);	  	
+	HWND create_edit(LPCWSTR text,int x,int y,int w,int h){		
+	 	return  create_ctl(L"edit", text,x,y,w,h);	  	
 	}
-	HWND create_button(LPCWSTR text,int x,int y,int w,int h,HWND hwnd,int id){
-	 	return  create_ctl(L"button", text,x,y,w,h,hwnd, id);	  	
+	HWND create_button(LPCWSTR text,int x,int y,int w,int h){		
+	 	return  create_ctl(L"button", text,x,y,w,h);	  	
 	}
 	HWND get_rootwindow(){
 	  HWND w =GetActiveWindow();
@@ -64,6 +65,7 @@ class win{
 		switch(msg) {
 		case WM_CREATE:
 		{
+			hwnd_handle = hwnd;
 			on_create(hwnd,msg,wp,lp);			
 			break;
 		}
@@ -107,7 +109,7 @@ class win{
 
 			RegisterClass(&wndcls);
 		}
-		hwnd = CreateWindow("HELLOWIN",		 /* class name */
+		HWND hwnd = CreateWindow("HELLOWIN",		 /* class name */
 			"HELLO--The C version",				 /* title */
 			WS_OVERLAPPEDWINDOW,					 /* window style */
 			x,y,w,h,			
@@ -115,8 +117,10 @@ class win{
 			NULL,										 /* menu */
 			hinst,									 /* module instance */
 			this);									 /* create param */
+		
 		ShowWindow(hwnd, show);
 		UpdateWindow(hwnd);
+
   	}
 };
 class app{
