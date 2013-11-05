@@ -16,6 +16,9 @@ class win{
   	virtual LRESULT on_button(int ctl_id,HWND ctl_hwnd){  		
   		return 0;
   	}
+  	virtual LRESULT on_menu(int menu_id,HWND hwnd){  		
+  		return 0;
+  	}
   	virtual LRESULT on_create(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp){
   		// _log("base into ");
   		return 0;
@@ -31,6 +34,7 @@ class win{
 	  return hwndedit;
 	}  	
   public:
+  	HWND get_handle(){return hwnd_handle;}
   	HWND create_label(LPCWSTR text,int x,int y,int w,int h){  		
 	 	return  create_ctl(L"STATIC", text,x,y,w,h);	  	
 	}
@@ -76,7 +80,9 @@ class win{
 		}
 		case WM_COMMAND:
 		{
-			if (HIWORD(wp) == BN_CLICKED) {
+			if (HIWORD(wp) == 0) {
+				 on_menu(LOWORD(wp),hwnd);  
+            }else if (HIWORD(wp) == BN_CLICKED) {
 				 on_button(LOWORD(wp),(HWND)lp);  
             }
 			break;
@@ -124,11 +130,13 @@ class win{
   	}
 };
 class app{
-	int loop(){
+	int loop(HWND hwnd){
 		MSG msg;
 		while (GetMessage(&msg, NULL, 0, 0)) {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			if(!IsDialogMessage(hwnd,&msg)){
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
 		}
 		return msg.wParam;
 	}
@@ -145,7 +153,7 @@ class app{
 	{		
 		assert(w);		
 		w->main();
-		return loop();
+		return loop(w->get_handle());
 	}
 };
 

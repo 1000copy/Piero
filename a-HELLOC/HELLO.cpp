@@ -65,7 +65,44 @@ public:
   		hstatic = create_label(L"ready",20, x+120, w, 40);
   		SetFocus(hwnd_edit);
   		create_link(TRUE);
+  		// menu 
+  		create_menu(hwnd);
+
 	  	return 0;
+	}
+	#define ID_FILE_EXIT  1
+	#define ID_FILE_QUERY  2
+	#define ID_STUFF_GO  3
+	
+	LRESULT on_menu(int menu_id,HWND hwnd){  	
+		// _log("menu_id:%d",menu_id)	;
+		if (menu_id == ID_FILE_EXIT)
+			msgbox("ID_FILE_EXIT");
+		if (menu_id == ID_FILE_QUERY)
+			msgbox("ID_FILE_QUERY");
+  		return 0;
+  	}
+  	void msgbox(LPCTSTR msg){
+  		_log("hwnd_handle:%d",hwnd_handle)	;
+  		MessageBox(
+	        NULL,
+	        (LPCTSTR)msg,
+	        (LPCTSTR)L"tip",
+	        MB_OK
+	    );
+  	}
+	void create_menu(HWND hwnd){
+		HMENU hMenu, hSubMenu;       
+        hMenu = CreateMenu();
+        hSubMenu = CreatePopupMenu();
+        AppendMenu(hSubMenu, MF_STRING, ID_FILE_QUERY, "&Query");
+        AppendMenu(hSubMenu, MF_STRING, ID_FILE_EXIT, "E&xit");
+        AppendMenu(hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, "&File");
+        hSubMenu = CreatePopupMenu();
+        AppendMenu(hSubMenu, MF_STRING, ID_STUFF_GO, "&About");
+        AppendMenu(hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, "&?");
+
+        SetMenu(hwnd, hMenu);
 	}
 	
 };
