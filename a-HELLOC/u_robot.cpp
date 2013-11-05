@@ -174,3 +174,18 @@ public:
 	}
 
 };
+void get_robot(char *text,char*buf,int size)
+{
+	robot r ;
+	int rlen = r.get_badrobot(text,buf,size);
+	// _log("rlen:%d",rlen);
+	if (rlen <= 0) 			
+	{                    
+	  // char buffer[1000];
+	  if(rlen ==-1)
+	    strcpy(buf,"要联网哦");
+	  else
+	    strcpy(buf,"好刁钻的单词");
+	  
+	}
+}

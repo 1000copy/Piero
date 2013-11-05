@@ -23,27 +23,10 @@ class win{
   		// _log("base into ");
   		return 0;
   	}
-  	HWND create_ctl(LPCWSTR ctl_type ,LPCWSTR text,int x,int y,int w,int h){
-		// DWORD style = WS_CHILD | WS_VISIBLE | SS_LEFT  ;
-		// if (strcmp(ctl_type,L"edit" ) == 0)
-		// 	 style = style |WS_BORDER|WS_TABSTOP ;
-		int id = 0;		
-		DWORD style = WS_CHILD | WS_VISIBLE | SS_LEFT  |WS_BORDER|WS_TABSTOP ;
-	 	HWND hwndedit = CreateWindowW(ctl_type, text,style ,
-	            x,y,w,h,hwnd_handle, (HMENU) id, NULL, NULL);	  
-	  return hwndedit;
-	}  	
+  	virtual LRESULT on_command(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp){return 0;};  	
+  	
   public:
   	HWND get_handle(){return hwnd_handle;}
-  	HWND create_label(LPCWSTR text,int x,int y,int w,int h){  		
-	 	return  create_ctl(L"STATIC", text,x,y,w,h);	  	
-	}
-	HWND create_edit(LPCWSTR text,int x,int y,int w,int h){		
-	 	return  create_ctl(L"edit", text,x,y,w,h);	  	
-	}
-	HWND create_button(LPCWSTR text,int x,int y,int w,int h){		
-	 	return  create_ctl(L"button", text,x,y,w,h);	  	
-	}
 	HWND get_rootwindow(){
 	  HWND w =GetActiveWindow();
 	  HWND last ;
@@ -80,11 +63,15 @@ class win{
 		}
 		case WM_COMMAND:
 		{
-			if (HIWORD(wp) == 0) {
-				 on_menu(LOWORD(wp),hwnd);  
-            }else if (HIWORD(wp) == BN_CLICKED) {
-				 on_button(LOWORD(wp),(HWND)lp);  
-            }
+			// if (HIWORD(wp) == 0) 
+			on_command(hwnd,msg,wp,lp);
+			// _log("BN_CLICKED:%d",BN_CLICKED);
+			// if (FALSE) 
+			// {
+			// 	 on_menu(LOWORD(wp),hwnd);  
+   //          }else if (HIWORD(wp) == BN_CLICKED) {
+			// 	 on_button(LOWORD(wp),(HWND)lp);  
+   //          }
 			break;
 		}
 		case WM_DESTROY:
@@ -151,6 +138,7 @@ class app{
 	}
 	int PASCAL main(HINSTANCE hinst, LPSTR cmdline, int show)
 	{		
+		
 		assert(w);		
 		w->main();
 		return loop(w->get_handle());
@@ -169,5 +157,3 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	win *p = (win*)v;
 	return p->_proc(hwnd,msg,wp,lp);
 }
-
-

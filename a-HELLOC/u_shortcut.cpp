@@ -1,9 +1,10 @@
 
 #include <shlobj.h>
 #include <objbase.h>
+#include <stdio.h.>
 #include <Shlwapi.h>
-
-#pragma comment( lib, "Shlwapi.lib" )
+#include "logger.h"
+// #pragma comment( lib, "Shlwapi.lib" )
 
 
 /***********************************************
@@ -93,10 +94,24 @@ BOOL AddNewGroup(LPSTR GroupName, char szPath [MAX_PATH],BOOL force)
     SHGetPathFromIDList( pidlStartMenu, szPath);
     strcat (szPath, "\\");
     strcat (szPath, GroupName);
-    if (FileExists(szPath) && !force)
-      return TRUE;
-    else
+    
+
+     if (FileExists(szPath) && !force)
+      return FALSE;
+     else{
+      // char buffer[1000];
+      // MByteToWChar(szPath,buffer,sizeof(buffer));
+      // silently_remove_directory(szPath);
       silently_remove_directory(szPath);
+     }
+
+    // if (FileExists(szPath) && !force)
+    //   return FALSE;
+    // else
+    // if(-1== remove (szPath)){
+    //   _log("delete failure:%s",szPath);
+    //   return FALSE;
+    // }
     // create the folder
     if(!CreateDirectory(szPath, NULL))
     {
@@ -136,12 +151,12 @@ int file_exists(TCHAR * file)
 }
 
 void create_link(BOOL force){
+  _log("entry:link");
   char szText [MAX_PATH];
   //call this because we are using COM..initializes com
   CoInitialize(NULL);
-    if(!AddNewGroup("Piero", szText,force))//create the demo program group
-  {
-    MessageBox(NULL,"ERROR","ERROR",MB_OK);
+  if(!AddNewGroup("Piero", szText,force))//create the demo program group
+  {    
     return;
   }
   

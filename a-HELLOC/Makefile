@@ -3,8 +3,8 @@ _lib=-lws2_32 -lole32 -luuid -lShlwapi -lcomctl32
 all:bigbang.exe t.exe bbi_correct.exe bbi_bang.exe
 hello.res:hello.rc
 	windres hello.rc -O coff -o hello.res
-t.exe: hello.cpp hello.res u_win.cpp logger.c u_shortcut.cpp
-	g++.exe -Wno-write-strings -mwindows  -static  hello.cpp hello.res logger.c u_shortcut.cpp $(_lib) -o $@
+t.exe: hello.cpp hello.res u_win.cpp logger.c u_shortcut.cpp u_robot.cpp
+	g++.exe -Wno-write-strings -mwindows  -static  hello.cpp hello.res logger.c u_shortcut.cpp u_robot.cpp $(_lib) -o $@
 bigbang.exe: big_bang.cpp
 	g++.exe -Wno-write-strings -mconsole  -static  big_bang.cpp -o $@
 bbi_correct.exe: big_bang_inplace.cpp logger.c
