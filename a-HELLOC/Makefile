@@ -14,7 +14,7 @@ bbi_bang.exe: big_bang_inplace.cpp logger.c
 msgbox_doesnt_appear.exe:	msgbox_doesnt_appear.c 
 	g++ msgbox_doesnt_appear.c -mwindows -o  $@
 why_deletefile_failure.exe:	why_deletefile_failure.c  logger.c
-	g++ why_deletefile_failure.c -mwindows logger.c -o  $@
+	g++ -Wno-write-strings why_deletefile_failure.c -mwindows logger.c -o  $@
 clean:
 	rm piero.txt
 	rm *.exe

@@ -52,8 +52,46 @@ void test_file_delete(){
 	    MessageBox(NULL,"","NOT found",0);
 	return ;
 }
+void test_file_delete1(){
+  char *tt = "C:\\Documents and Settings\\Administrator\\cd";
+  // silently_remove_directory(tt);
+  DeleteFile(tt);
+  last_error_message(GetLastError());
+  return ;
+}
+void test_file_delete2(){
+  wchar_t  tt[] = L"C:\\Documents and Settings\\Administrator\\「开始」菜单\\程序\\Piero\\新建 AutoHotkey Script.ahk";
+  DeleteFileW(tt);
+  last_error_message(GetLastError());
+  return ;
+}
+
+
+#define _UNICODE
+
+
+#ifdef UNICODE
+typedef wchar_t TCHAR;
+#else
+typedef char TCHAR;
+#endif
+
+#ifdef UNICODE
+#define _T(x) L##x
+#else
+#define _T(x) x
+#endif
+
+
+void test_file_delete3(){
+  TCHAR  tt[] = _T("C:\\Documents and Settings\\Administrator\\「开始」菜单\\程序\\Piero\\新建 AutoHotkey Script.ahk");
+  DeleteFile(tt);
+  last_error_message(GetLastError());
+  return ;
+}
+
 int PASCAL WinMain(HINSTANCE hinst, HINSTANCE pinst, LPSTR cmdline, int show)
 {
-  test_file_delete();
+  test_file_delete2();
 	return 0;
 }
