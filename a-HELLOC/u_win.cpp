@@ -1,6 +1,6 @@
-#include "logger.h"
 #include <windows.h>
 #include <assert.h>
+#include "logger.h"
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 class win{
@@ -50,37 +50,29 @@ class win{
   	}  	
   	LRESULT CALLBACK _proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp){
 		switch(msg) {
-		case WM_CREATE:
-		{
-			hwnd_handle = hwnd;
-			on_create(hwnd,msg,wp,lp);			
-			break;
-		}
-		case WM_PAINT:
-		{
-			on_paint(hwnd,msg,wp,lp);
-			break;					
-		}
-		case WM_COMMAND:
-		{
-			// if (HIWORD(wp) == 0) 
-			on_command(hwnd,msg,wp,lp);
-			// _log("BN_CLICKED:%d",BN_CLICKED);
-			// if (FALSE) 
-			// {
-			// 	 on_menu(LOWORD(wp),hwnd);  
-   //          }else if (HIWORD(wp) == BN_CLICKED) {
-			// 	 on_button(LOWORD(wp),(HWND)lp);  
-   //          }
-			break;
-		}
-		case WM_DESTROY:
-		{
-			PostQuitMessage(0);			
-			break;
-		}
-		default :
-			return DefWindowProc(hwnd, msg, wp, lp);
+			case WM_CREATE:
+			{
+				hwnd_handle = hwnd;
+				on_create(hwnd,msg,wp,lp);			
+				break;
+			}
+			case WM_PAINT:
+			{
+				on_paint(hwnd,msg,wp,lp);
+				break;					
+			}
+			case WM_COMMAND:
+			{				
+				on_command(hwnd,msg,wp,lp);				
+				break;
+			}
+			case WM_DESTROY:
+			{
+				PostQuitMessage(0);			
+				break;
+			}
+			default :
+				return DefWindowProc(hwnd, msg, wp, lp);
 		}
 		return 0;
   	}
@@ -113,7 +105,6 @@ class win{
 		
 		ShowWindow(hwnd, show);
 		UpdateWindow(hwnd);
-
   	}
 };
 class app{
