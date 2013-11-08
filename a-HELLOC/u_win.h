@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "logger.h"
 
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 class win{
 	WNDPROC winproc;
@@ -24,7 +25,12 @@ class win{
   		return 0;
   	}
   	virtual LRESULT on_command(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp){return 0;};  	
-  	
+  	virtual void on_hotkey(HWND hwnd,int key){
+  		return ;
+	}
+	virtual void on_activate(HWND  hwnd){  
+		return ;
+	}  	
   public:
   	HWND get_handle(){return hwnd_handle;}
 	HWND get_rootwindow(){
@@ -50,6 +56,17 @@ class win{
   	}  	
   	LRESULT CALLBACK _proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp){
 		switch(msg) {
+			case WM_HOTKEY:
+		    {
+		      on_hotkey(hwnd,LOWORD(wp));
+		      break;
+		    }
+		    case WM_ACTIVATE:
+		    {
+		      on_activate(hwnd);      
+		      // 没有break ，死相很惨
+		      break;
+		    }
 			case WM_CREATE:
 			{
 				hwnd_handle = hwnd;
@@ -148,3 +165,57 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	win *p = (win*)v;
 	return p->_proc(hwnd,msg,wp,lp);
 }
+
+class ctl{
+protected:
+	HWND hwnd_handle;
+public:
+	ctl(win* parent,int id,char *ctl_type,char *text ,int x,int y ,int w,int h)
+	{
+		assert(parent!=NULL);
+		HWND handle = parent->get_handle();
+		assert(handle !=0);	 	
+		DWORD style = WS_CHILD | WS_VISIBLE | SS_LEFT  |WS_BORDER|WS_TABSTOP ;
+		hwnd_handle = CreateWindow(ctl_type, text,style ,
+	            x,y,w,h,handle, (HMENU)id, NULL, NULL);	  	
+	}
+	HWND get_handle(){return hwnd_handle;}
+	void get_text(char *buf,int size){		
+		int len = GetWindowTextLength(hwnd_handle) + 1;         
+		assert(size>=len);
+		// char text[len];
+		GetWindowText(hwnd_handle, buf, size);
+	}
+	void set_text(char *buf){
+		SetWindowText(hwnd_handle, buf);
+	}
+	int get_len(){		
+		return GetWindowTextLength(hwnd_handle) ;		
+	}
+	
+};
+class edit:public ctl{
+private:	
+public:
+	edit(win* parent,int id ,char *text ,int x,int y ,int w,int h):ctl(parent,id,"edit",text,x,y,w,h){}
+	void select(int from ,int to){
+		SendMessage(hwnd_handle, EM_SETSEL, from, to);
+	}
+	void set_focus(){
+		SetFocus(hwnd_handle);
+	}		
+};
+
+class label:public ctl{
+private:
+	HWND hwnd_handle;
+public:
+	label(win* parent,int id,char *text ,int x,int y ,int w,int h):ctl(parent,id,"static",text,x,y,w,h){}	
+};
+
+class btn:public ctl{
+private:
+	HWND hwnd_handle;
+public:
+	btn(win* parent,int id,char *text ,int x,int y ,int w,int h):ctl(parent,id,"button",text,x,y,w,h){}	
+};

@@ -2,84 +2,95 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "u_win.cpp"
+#include "u_win.h"
 #include "u_robot.h"
 #include "u_shortcut.h"
-
-class ctl{
-protected:
-	HWND hwnd_handle;
-public:
-	ctl(win* parent,int id,char *ctl_type,char *text ,int x,int y ,int w,int h)
-	{
-		assert(parent!=NULL);
-		HWND handle = parent->get_handle();
-		assert(handle !=0);	 	
-		DWORD style = WS_CHILD | WS_VISIBLE | SS_LEFT  |WS_BORDER|WS_TABSTOP ;
-		hwnd_handle = CreateWindow(ctl_type, text,style ,
-	            x,y,w,h,handle, (HMENU)id, NULL, NULL);	  	
-	}
-	HWND get_handle(){return hwnd_handle;}
-	void get_text(char *buf,int size){		
-		int len = GetWindowTextLength(hwnd_handle) + 1;         
-		assert(size>=len);
-		// char text[len];
-		GetWindowText(hwnd_handle, buf, size);
-	}
-	void set_text(char *buf){
-		SetWindowText(hwnd_handle, buf);
-	}
-	int get_len(){		
-		return GetWindowTextLength(hwnd_handle) ;		
-	}
-	
-};
-class edit:public ctl{
-private:	
-public:
-	edit(win* parent,int id ,char *text ,int x,int y ,int w,int h):ctl(parent,id,"edit",text,x,y,w,h){}
-	void select(int from ,int to){
-		SendMessage(hwnd_handle, EM_SETSEL, from, to);
-	}
-	void set_focus(){
-		SetFocus(hwnd_handle);
-	}		
-};
-
-class label:public ctl{
+#define HOTKEY_ID  100
+class hotkey{
 private:
-	HWND hwnd_handle;
+   BOOL is_fail ;
+   HWND hwnd;
 public:
-	label(win* parent,int id,char *text ,int x,int y ,int w,int h):ctl(parent,id,"static",text,x,y,w,h){}	
-};
-
-class btn:public ctl{
-private:
-	HWND hwnd_handle;
-public:
-	btn(win* parent,int id,char *text ,int x,int y ,int w,int h):ctl(parent,id,"button",text,x,y,w,h){}	
+  hotkey(HWND hwnd1){
+    hwnd = hwnd1;
+    is_fail = FALSE;
+    if (0==RegisterHotKey(hwnd, HOTKEY_ID,MOD_CONTROL, 0X4D)){
+        UnregisterHotKey(hwnd,HOTKEY_ID);
+        _log("RegisterHotKey failure!");
+        is_fail = TRUE;
+        return;
+    }
+  }
+  ~hotkey(){   
+   if(!is_fail)
+      UnregisterHotKey(hwnd,HOTKEY_ID);    
+  }
 };
 class dictwin:public win{
 private:
 	edit * e;
 	btn *b;
 	label*l;	
+  hotkey *key;
 public:
-	dictwin(HINSTANCE hinsta, HINSTANCE pinsta,int showa):win(hinsta,pinsta,showa){
-  		b = NULL;
+  BOOL is_change(char* new_,HWND hwndedit){
+    int len = GetWindowTextLengthW(hwndedit) + 1;         
+    char text[len];
+    memset(text,0,len);
+    GetWindowText(hwndedit, text, len);
+    return 0!=strcmp(new_,text);    
+  }
+  char* getClipboard() {
+      OpenClipboard(NULL);
+      HANDLE pText = GetClipboardData(CF_TEXT);
+      CloseClipboard();
+      LPVOID text = GlobalLock(pText);
+      return (char*)text;
+  }
+  void on_activate(HWND  hwnd){  
+    e->set_focus();
+    char* content = getClipboard();
+    HWND hwnd1 = get_rootwindow();
+    HWND hwndedit = e->get_handle();
+    if(is_change(content,hwndedit)){
+      SetWindowText(hwndedit,content);
+      query();
+    }
+  }
+
+	dictwin(HINSTANCE h, HINSTANCE ph,int show):win(h,ph,show){
+  		b = NULL;  
   	}
   	~dictwin(){
+      delete key;
   		delete e;
   	}
+    void on_hotkey(HWND hwnd,int key)
+    {
+      switch(key)
+      {
+            case HOTKEY_ID:
+            {
+            // _log("WM_HOTKEY");
+              if (hwnd != GetActiveWindow()){
+                ShowWindow(hwnd,SW_SHOW);
+                SetForegroundWindow(hwnd);
+              }
+              else
+                ShowWindow(hwnd,SW_HIDE);   
+              break   ;
+            }
+      }
+   }
    LRESULT on_paint(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
   	{
   		PAINTSTRUCT ps;
 		HDC hdc;
 		RECT rect;
 		hdc = BeginPaint(hwnd, &ps);
-		GetClientRect(hwnd, &rect);
-		DrawText(hdc, "dddHello, world.", -1, &rect,
-			DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+		// GetClientRect(hwnd, &rect);
+		// DrawText(hdc, "dddHello, world.", -1, &rect,
+		// 	DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 		UpdateWindow(hwnd);
 		EndPaint(hwnd, &ps);		
 		return 0;
@@ -140,6 +151,7 @@ public:
   		e->set_focus();
   		//create_link(TRUE);
   		create_menu(hwnd);
+      key = new hotkey(hwnd);
 	  	return 0;
 	}
 	void msgbox(LPCTSTR msg){
