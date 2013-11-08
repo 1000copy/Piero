@@ -1,3 +1,4 @@
+// http://www.codeproject.com/Articles/2995/The-Complete-Guide-to-C-Strings-Part-I-Win32-Chara
 #define _UNICODE 
 #include <stdio.h>
 #include <windows.h>
@@ -90,8 +91,36 @@ void test_file_delete3(){
   return ;
 }
 
+
+#include "u_string.cpp"
+
+void test_file_delete4(){
+  char s1 [] = "C:\\Documents and Settings\\Administrator\\「开始」菜单\\程序\\Piero\\新建 AutoHotkey Script.ahk";
+  // printf("t1:%s\n",s1);
+  wchar_t  tt[1000] ;
+  int r = M2U(s1,tt,sizeof(tt)/sizeof(tt[0]));
+  // printf("%d",r);
+  wprintf(L"wprintf for tt:%ls\n",tt);
+  printf("\n");
+  // WriteConsoleW
+  {
+    DWORD ws;
+    printf("WriteConsoleW for tt:\n");
+    WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE),tt,wcslen(tt),&ws,NULL);  
+  }
+  {
+    wchar_t test[] = L"测试1234";
+    DWORD ws;
+    WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE),test,wcslen(test),&ws,NULL);
+  }
+
+  DeleteFileW(tt);
+  // last_error_message(GetLastError());//
+  return ;
+}
+
 int PASCAL WinMain(HINSTANCE hinst, HINSTANCE pinst, LPSTR cmdline, int show)
 {
-  test_file_delete2();
+  test_file_delete4();
 	return 0;
 }

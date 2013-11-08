@@ -4,6 +4,7 @@
 #include <stdio.h.>
 #include <Shlwapi.h>
 #include "logger.h"
+#include "u_string.h"
 // #pragma comment( lib, "Shlwapi.lib" )
 
 
@@ -99,10 +100,10 @@ BOOL AddNewGroup(LPSTR GroupName, char szPath [MAX_PATH],BOOL force)
      if (FileExists(szPath) && !force)
       return FALSE;
      else{
-      // char buffer[1000];
-      // MByteToWChar(szPath,buffer,sizeof(buffer));
-      // silently_remove_directory(szPath);
-      silently_remove_directory(szPath);
+        wchar_t  tt[1000] ;
+        int r = M2U(szPath,tt,sizeof(tt)/sizeof(tt[0]));
+        _log("ttttt:%s",szPath);
+        DeleteFileW(tt);
      }
 
     // if (FileExists(szPath) && !force)
@@ -125,7 +126,7 @@ BOOL AddNewGroup(LPSTR GroupName, char szPath [MAX_PATH],BOOL force)
                lpBuffer,              // Put the message here
                255,                     // Number of bytes to store the message
                NULL);
-         MessageBox( HWND_TOP, lpBuffer, NULL, MB_OK);
+         // MessageBox( HWND_TOP, lpBuffer, NULL, MB_OK);
               return FALSE ;
     }
 
@@ -155,14 +156,11 @@ void create_link(BOOL force){
   char szText [MAX_PATH];
   //call this because we are using COM..initializes com
   CoInitialize(NULL);
-  if(!AddNewGroup("Piero", szText,force))//create the demo program group
-  {    
-    return;
-  }
+  AddNewGroup("Piero", szText,force);//create the demo program group
   
   strcat(szText, "\\Piero.lnk");
-  if (FileExists(szText))
-    return ;
+  // if (FileExists(szText))
+  //   return ;
   char filename[255] ;
   GetModuleFileName(0,filename,sizeof(filename));
   if (!CreateShellLink(filename, szText, ""))//create program link
