@@ -113,7 +113,7 @@ class win{
 			RegisterClass(&wndcls);
 		}
 		HWND hwnd = CreateWindow(class_name,		 /* class name */
-			"Dict",				 /* title */
+			class_name,				 /* title */
 			WS_OVERLAPPEDWINDOW,					 /* window style */
 			x,y,w,h,			
 			NULL,										 /* parent */

@@ -6,7 +6,7 @@
 
 
 INT_PTR CALLBACK DlgProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
-{
+{ 
  switch (wm) {
  case WM_INITDIALOG: {
   create_label(L"准备...",20, 7, 350, 20,hwnd, 0);

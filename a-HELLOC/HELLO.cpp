@@ -119,12 +119,14 @@ public:
   }
   #define ID_FILE_EXIT  1
 	#define ID_FILE_QUERY  2
-	#define ID_STUFF_GO  3	
+	#define ID_ABOUT  3	
 	LRESULT on_menu(int menu_id,HWND hwnd){  	
 		if (menu_id == ID_FILE_EXIT)
 			PostQuitMessage(-1);
 		if (menu_id == ID_FILE_QUERY)
 			query();
+    if (menu_id == ID_ABOUT)
+      msgbox("ABOUT");
   		return 0;
   	}
   	
@@ -191,7 +193,7 @@ public:
         AppendMenu(hSubMenu, MF_STRING, ID_FILE_EXIT, "E&xit");
         AppendMenu(hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, "&File");
         hSubMenu = CreatePopupMenu();
-        AppendMenu(hSubMenu, MF_STRING, ID_STUFF_GO, "&About");
+        AppendMenu(hSubMenu, MF_STRING, ID_ABOUT, "&About");
         AppendMenu(hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, "&?");
 
         SetMenu(hwnd, hMenu);
@@ -226,22 +228,22 @@ public:
       }       
       return FALSE;
   }
+  void restore_last(char* windowName)
+  {
+    HWND firstInstance = FindWindow(windowName,NULL);
+    ShowWindow(firstInstance, 1);
+    SetForegroundWindow(firstInstance);
+  }
 };
 
-void ShowToFront(char* windowName)
-{
-  HWND firstInstance = FindWindow(windowName,NULL);
-  ShowWindow(firstInstance, 1);
-  SetForegroundWindow(firstInstance);
-}
 
 int PASCAL WinMain(HINSTANCE hinst, HINSTANCE pinst, LPSTR cmdline, int show)
 {
-  char * window_class_name = "HELLOWIN" ;
+  char * window_class_name = "Dict" ;
   mutex x ;
   if (x.check()){
     //restore old windows
-    ShowToFront(window_class_name);
+    x.restore_last(window_class_name);
     return 0;
   }
 	dictwin *w = new dictwin(hinst, show,window_class_name);
