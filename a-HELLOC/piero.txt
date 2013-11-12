@@ -1,0 +1,2 @@
+2013:11:1216:36:23 hwnd_handle editproc:657142 [u_win.h][line: 234] 
+2013:11:1216:41:40 hwnd_handle:13436448 [hello.cpp][line: 180] 
