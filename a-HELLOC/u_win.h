@@ -7,7 +7,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 class win{
 	WNDPROC winproc;
 	HINSTANCE hinst;
-	HINSTANCE pinst;
+	char *class_name;
 	int show;
 	int x,y,w,h;
 	
@@ -42,11 +42,11 @@ class win{
 	  }
 	  return last ;
 	}
-  	win(HINSTANCE hinsta, HINSTANCE pinsta,int showa){
+  	win(HINSTANCE hinsta,int showa,char *class_name_a){
   		winproc = WndProc ;
   		hinst = hinsta ;
   		show = showa;
-  		pinst = pinsta;
+  		class_name = class_name_a;
   	}
   	void set_rect(int x_,int y_,int w_,int h_){
   		x = x_;
@@ -85,7 +85,8 @@ class win{
 			}
 			case WM_DESTROY:
 			{
-				PostQuitMessage(0);			
+				// _log("enter keyup");
+				PostQuitMessage(0);
 				break;
 			}
 			default :
@@ -94,7 +95,7 @@ class win{
 		return 0;
   	}
   	void main(){  		
-  		if (pinst==NULL) 
+  		// if (pinst==NULL) 
 		{
 			WNDCLASS wndcls;
 
@@ -107,12 +108,12 @@ class win{
 			wndcls.hCursor = LoadCursor(NULL, IDC_ARROW);
 			wndcls.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
 			wndcls.lpszMenuName = "HELLOMENU";
-			wndcls.lpszClassName = "HELLOWIN";
+			wndcls.lpszClassName = class_name ;
 
 			RegisterClass(&wndcls);
 		}
-		HWND hwnd = CreateWindow("HELLOWIN",		 /* class name */
-			"HELLO--The C version",				 /* title */
+		HWND hwnd = CreateWindow(class_name,		 /* class name */
+			"Dict",				 /* title */
 			WS_OVERLAPPEDWINDOW,					 /* window style */
 			x,y,w,h,			
 			NULL,										 /* parent */
@@ -169,10 +170,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 class ctl{
 protected:
 	HWND hwnd_handle;
+	win* parent_win;
 public:
 	ctl(win* parent,int id,char *ctl_type,char *text ,int x,int y ,int w,int h)
 	{
 		assert(parent!=NULL);
+		parent_win = parent ;
 		HWND handle = parent->get_handle();
 		assert(handle !=0);	 	
 		DWORD style = WS_CHILD | WS_VISIBLE | SS_LEFT  |WS_BORDER|WS_TABSTOP ;
@@ -194,18 +197,57 @@ public:
 	}
 	
 };
+// edit control 
+
+WNDPROC DefEditProc ;
+LRESULT CALLBACK MyEditProc(HWND h_edit, UINT message,WPARAM wParam, LPARAM lParam) ;
 class edit:public ctl{
-private:	
 public:
-	edit(win* parent,int id ,char *text ,int x,int y ,int w,int h):ctl(parent,id,"edit",text,x,y,w,h){}
+	edit(win* parent,int id ,char *text ,int x,int y ,int w,int h):ctl(parent,id,"edit",text,x,y,w,h)
+	{
+		assert(hwnd_handle);
+		// _log("hwnd_handle:%d",hwnd_handle);
+		DefEditProc = (WNDPROC)GetWindowLong(hwnd_handle,GWL_WNDPROC);		
+		assert(DefEditProc);
+		SetWindowLong(hwnd_handle,GWL_WNDPROC,(long)MyEditProc);
+		SetWindowLong(hwnd_handle,GWL_USERDATA,(long)this);
+		// _log("this:%d",(long)this);
+	}
 	void select(int from ,int to){
 		SendMessage(hwnd_handle, EM_SETSEL, from, to);
 	}
 	void set_focus(){
 		SetFocus(hwnd_handle);
-	}		
+	}			
+	virtual void on_enter(){}
 };
 
+LRESULT CALLBACK MyEditProc(HWND h_edit, UINT message,WPARAM wParam, LPARAM lParam) 
+{  
+  if (message == WM_GETDLGCODE) 
+        return DLGC_WANTALLKEYS;
+  switch(message) {
+  case WM_CHAR:
+  {
+  	// _log("enter keyup %d=%d",wParam ,VK_RETURN);
+    if( wParam == VK_RETURN ) {        
+    	_log("hwnd_handle editproc:%d",h_edit);
+    	long v = GetWindowLong(h_edit,GWL_USERDATA);
+		// _log("this editproc:%d",(long)v);
+		edit *e = (edit*)v;
+		e->on_enter();
+        // on_enter();
+        return(0);
+    }    
+	}
+  default:
+    break;
+  }
+  return( (LRESULT)CallWindowProc((WNDPROC)DefEditProc,h_edit,message,wParam,lParam));
+}
+
+
+// label control 
 class label:public ctl{
 private:
 	HWND hwnd_handle;

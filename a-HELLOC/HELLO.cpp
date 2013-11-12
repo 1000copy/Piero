@@ -26,9 +26,38 @@ public:
       UnregisterHotKey(hwnd,HOTKEY_ID);    
   }
 };
+
+class clipboard{
+public:
+  static char* get() {
+      OpenClipboard(NULL);
+      HANDLE pText = GetClipboardData(CF_TEXT);
+      CloseClipboard();
+      LPVOID text = GlobalLock(pText);
+      return (char*)text;
+  }  
+  static void set(const char* output)
+  {    
+    const size_t len = strlen(output) + 1;
+    HGLOBAL hMem =  GlobalAlloc(GMEM_MOVEABLE, len);
+    memcpy(GlobalLock(hMem), output, len);
+    GlobalUnlock(hMem);
+    OpenClipboard(0);
+    EmptyClipboard();
+    SetClipboardData(CF_TEXT, hMem);
+    CloseClipboard();
+  }
+};
+class dict_edit:public edit{
+protected:
+  void on_enter();
+public:
+  dict_edit(win* parent,int id ,char *text ,int x,int y ,int w,int h):edit(parent,id,text,x,y,w,h){}; 
+};
+
 class dictwin:public win{
 private:
-	edit * e;
+	dict_edit * e;
 	btn *b;
 	label*l;	
   hotkey *key;
@@ -38,27 +67,23 @@ public:
     char text[len];
     memset(text,0,len);
     GetWindowText(hwndedit, text, len);
-    return 0!=strcmp(new_,text);    
+    // _log("is_change:1");
+    BOOL r = 0!=strcmp(new_,text); 
+    // _log("is_change:2");
+    return r;
   }
-  char* getClipboard() {
-      OpenClipboard(NULL);
-      HANDLE pText = GetClipboardData(CF_TEXT);
-      CloseClipboard();
-      LPVOID text = GlobalLock(pText);
-      return (char*)text;
-  }
+ 
   void on_activate(HWND  hwnd){  
     e->set_focus();
-    char* content = getClipboard();
+    char* content = clipboard::get();
     HWND hwnd1 = get_rootwindow();
-    HWND hwndedit = e->get_handle();
-    if(is_change(content,hwndedit)){
+    HWND hwndedit = e->get_handle();        
+    if(content && is_change(content,hwndedit)){            
       SetWindowText(hwndedit,content);
       query();
     }
   }
-
-	dictwin(HINSTANCE h, HINSTANCE ph,int show):win(h,ph,show){
+	dictwin(HINSTANCE h,int show,char *class_name):win(h,show,class_name){
   		b = NULL;  
   	}
   	~dictwin(){
@@ -67,35 +92,32 @@ public:
   	}
     void on_hotkey(HWND hwnd,int key)
     {
-      switch(key)
-      {
-            case HOTKEY_ID:
-            {
-            // _log("WM_HOTKEY");
-              if (hwnd != GetActiveWindow()){
-                ShowWindow(hwnd,SW_SHOW);
-                SetForegroundWindow(hwnd);
-              }
-              else
-                ShowWindow(hwnd,SW_HIDE);   
-              break   ;
-            }
+      if (key != HOTKEY_ID)return;      
+      if (hwnd != GetActiveWindow()){
+        ShowWindow(hwnd,SW_SHOW);
+        SetForegroundWindow(hwnd);
       }
+      else{
+        char buf[1024];
+        l->get_text(buf,sizeof(buf));
+        clipboard::set(buf);
+        ShowWindow(hwnd,SW_HIDE);   
+      }            
    }
-   LRESULT on_paint(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
-  	{
-  		PAINTSTRUCT ps;
-		HDC hdc;
-		RECT rect;
-		hdc = BeginPaint(hwnd, &ps);
-		// GetClientRect(hwnd, &rect);
-		// DrawText(hdc, "dddHello, world.", -1, &rect,
-		// 	DT_SINGLELINE | DT_CENTER | DT_VCENTER);
-		UpdateWindow(hwnd);
-		EndPaint(hwnd, &ps);		
-		return 0;
-  	}
-  	#define ID_FILE_EXIT  1
+  LRESULT on_paint(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
+  {
+      PAINTSTRUCT ps;
+      HDC hdc;
+      RECT rect;
+      hdc = BeginPaint(hwnd, &ps);
+      // GetClientRect(hwnd, &rect);
+      // DrawText(hdc, "dddHello, world.", -1, &rect,
+      // 	DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+      UpdateWindow(hwnd);
+      EndPaint(hwnd, &ps);		
+      return 0;
+  }
+  #define ID_FILE_EXIT  1
 	#define ID_FILE_QUERY  2
 	#define ID_STUFF_GO  3	
 	LRESULT on_menu(int menu_id,HWND hwnd){  	
@@ -119,35 +141,33 @@ public:
   		{
   			if (ctl_id == ID_FILE_QUERY)
   				query();	
-  		//   if (b!=NULL)
-  		//   	_log("b->get_handle():%d,ctl_hwnd:%d",b->get_handle(),ctl_hwnd);
-  		//   if ((b!=NULL) && (ctl_hwnd == b->get_handle())) {
-  		// 	query();	
-		  // }  		
 		}
   		return 0;
   	}
   	void query(){
-		char text[e->get_len()+1];
-		assert(e);
-		e->get_text(text,sizeof(text));			
-		// _log("text:%s",text);
-		
-		char buf[1000];
-		get_robot(text,buf,sizeof(buf));
-		l->set_text(buf);
-		// SetWindowText(hstatic,buf);
-		e->select(0,-1);
-		e->set_focus();		
+  		char text[e->get_len()+1];
+  		assert(e);
+  		e->get_text(text,sizeof(text));			
+  		// _log("text:%s",text);
+  		
+  		char buf[1000];
+  		get_robot(text,buf,sizeof(buf));
+  		l->set_text(buf);
+  		// SetWindowText(hstatic,buf);
+  		e->select(0,-1);
+  		e->set_focus();		
   	} 
   	LRESULT on_create(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
   	{		  		
   		int x = 5;
   		int w = 200;
-  		l = new label(this,0,"type word...",20, x, w, 40);
-  		e = new edit(this,0,"some",20, x+40, w, 40);
+  		new label(this,0,"type word...",20, x, w, 40);
+  		e = new dict_edit(this,0,"some",20, x+40, w, 40);
   		b = new btn(this,ID_FILE_QUERY,"query",20, x+80, w, 40);
   		l = new label(this,0,"ready",20, x+120, w, 40);
+      assert(e);
+      assert(b);
+      assert(l);
   		e->set_focus();
   		//create_link(TRUE);
   		create_menu(hwnd);
@@ -179,10 +199,52 @@ public:
 	
 };
 
+void dict_edit::on_enter()
+{  
+    ((dictwin*)parent_win)->query();
+}
+
+
+class mutex{
+  HANDLE hMutex ; 
+public:
+    mutex(){
+
+    }
+    ~mutex(){
+      CloseHandle(hMutex) ;
+    }
+  BOOL check(){
+    hMutex = CreateMutex(NULL, TRUE, "Global\\DFFDFD-C1733E55-A6FD-47D5-8638-053E938E08B8");
+      if ( hMutex )
+      {
+         if( GetLastError() == ERROR_ALREADY_EXISTS )
+         {
+            CloseHandle( hMutex );
+            return TRUE;
+         }
+      }       
+      return FALSE;
+  }
+};
+
+void ShowToFront(char* windowName)
+{
+  HWND firstInstance = FindWindow(windowName,NULL);
+  ShowWindow(firstInstance, 1);
+  SetForegroundWindow(firstInstance);
+}
 
 int PASCAL WinMain(HINSTANCE hinst, HINSTANCE pinst, LPSTR cmdline, int show)
 {
-	dictwin *w = new dictwin(hinst, pinst,show);
+  char * window_class_name = "HELLOWIN" ;
+  mutex x ;
+  if (x.check()){
+    //restore old windows
+    ShowToFront(window_class_name);
+    return 0;
+  }
+	dictwin *w = new dictwin(hinst, show,window_class_name);
 	w->set_rect(100,100,300,250);
 	app a (w);
 	return a.main(hinst,cmdline,show);
