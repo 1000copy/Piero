@@ -5,6 +5,8 @@
 #include "u_win.h"
 #include "u_robot.h"
 #include "u_shortcut.h"
+#include "u_dialog.h"
+
 #define HOTKEY_ID  100
 class hotkey{
 private:
@@ -176,7 +178,7 @@ public:
       key = new hotkey(hwnd);
 	  	return 0;
 	}
-	void msgbox(LPCTSTR msg){
+	void msgbox1(LPCTSTR msg){
   		_log("hwnd_handle:%d",hwnd_handle)	;
   		MessageBox(
 	        NULL,
@@ -185,6 +187,9 @@ public:
 	        MB_OK
 	    );
   	}
+  void msgbox(LPCTSTR msg){
+    dialog_test_call(hwnd_handle);
+  }
 	void create_menu(HWND hwnd){
 		HMENU hMenu, hSubMenu;       
         hMenu = CreateMenu();

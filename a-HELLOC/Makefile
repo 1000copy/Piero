@@ -1,14 +1,13 @@
 _lib=-lws2_32 -lole32 -luuid -lShlwapi -lcomctl32 
 
-all:bigbang.exe t.exe bbi_correct.exe bbi_bang.exe msgbox_doesnt_appear.exe why_deletefile_failure.exe mutex.exe
+all:bigbang.exe  bbi_correct.exe bbi_bang.exe msgbox_doesnt_appear.exe why_deletefile_failure.exe mutex.exe k.exe
 mutex.exe:mutex.cpp
 	g++ -mwindows mutex.cpp -o mutex.exe -static
 hello.res:hello.rc
 	windres hello.rc -O coff -o hello.res
-t.exe: hello.cpp hello.res logger.c u_shortcut.cpp u_robot.cpp u_string.cpp u_win.h
-	g++.exe -Wno-write-strings -mwindows  -static  hello.cpp hello.res logger.c u_shortcut.cpp u_robot.cpp u_string.cpp $(_lib) -o $@
-bigbang.exe: big_bang.cpp
-	g++.exe -Wno-write-strings -mconsole  -static  big_bang.cpp -o $@
+k.exe: hello.cpp hello.res logger.c u_shortcut.cpp u_robot.cpp u_string.cpp u_win.h u_dialog.h
+	g++.exe -Wno-write-strings -mwindows  -static  hello.cpp hello.res logger.c u_shortcut.cpp u_robot.cpp \
+		u_string.cpp u_dialog.cpp $(_lib) -o $@
 bbi_correct.exe: big_bang_inplace.cpp logger.c
 	g++.exe -Wno-write-strings -mwindows  -static  big_bang_inplace.cpp logger.c -o $@
 bbi_bang.exe: big_bang_inplace.cpp logger.c
