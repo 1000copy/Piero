@@ -89,7 +89,7 @@ void add_child(DialogTemplate *tmp,const char *c_type,const wchar_t  *c_name ,WO
 }
 
 
-BOOL dialog_modal(HWND hwnd,LPCWSTR pszTitle,WORD X,WORD Y,WORD W,WORD H,DWORD STYLE,DLGPROC proc)
+BOOL dialog_modal(HWND hwnd,LPCWSTR pszTitle,WORD X,WORD Y,WORD W,WORD H,DWORD STYLE,DLGPROC proc,LPARAM lp)
 {
  WORD c_count = 0;
 
@@ -122,7 +122,7 @@ BOOL dialog_modal(HWND hwnd,LPCWSTR pszTitle,WORD X,WORD Y,WORD W,WORD H,DWORD S
    tmp.Write<BYTE>(ncm.lfMessageFont.lfItalic); // Italic
    tmp.Write<BYTE>(ncm.lfMessageFont.lfCharSet); // CharSet
    tmp.WriteString(ncm.lfMessageFont.lfFaceName);
-   fSuccess = DialogBoxIndirect(g_hinst(), tmp.Template(),hwnd, proc) >= 0;
+   fSuccess = DialogBoxIndirectParam(g_hinst(), tmp.Template(),hwnd, proc,lp) >= 0;
   }
   ReleaseDC(NULL, hdc); // fixed 11 May
  }
