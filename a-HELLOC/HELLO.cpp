@@ -8,6 +8,15 @@
 #include "u_dialog.h"
 
 #define HOTKEY_ID  100
+
+// BOOL dialog_test_call(HWND hwnd){
+//   some_dialog *d = new some_dialog();
+//   assert(d);
+//   return d->do_modal(hwnd,L"Title ",200,32,200,180,WS_CAPTION | WS_SYSMENU | DS_SETFONT | DS_MODALFRAME); 
+//   // return dialog_modal(hwnd,L"Title ",200,32,200,180,WS_CAPTION | WS_SYSMENU | DS_SETFONT | DS_MODALFRAME,DlgProc,(LPARAM)d); 
+// }
+
+
 class hotkey{
 private:
    BOOL is_fail ;
@@ -176,6 +185,7 @@ public:
   		//create_link(TRUE);
   		create_menu(hwnd);
       key = new hotkey(hwnd);
+      dialog_test_call(hwnd_handle);
 	  	return 0;
 	}
 	void msgbox1(LPCTSTR msg){
