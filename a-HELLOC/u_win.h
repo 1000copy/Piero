@@ -2,6 +2,10 @@
 #include <assert.h>
 #include "logger.h"
 
+void msgbox(LPCTSTR msg)
+{
+  MessageBox(NULL, (LPCTSTR)msg,(LPCTSTR)L"tip",MB_OK);
+}
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 class win{

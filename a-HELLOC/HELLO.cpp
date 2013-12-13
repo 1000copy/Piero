@@ -6,59 +6,35 @@
 #include "u_robot.h"
 #include "u_shortcut.h"
 #include "u_dialog.h"
+#include "u_hotkey.h"
+#include "u_clipboard.h"
+#include "u_mutex.h"
 
-#define HOTKEY_ID  100
-
-// BOOL dialog_test_call(HWND hwnd){
-//   some_dialog *d = new some_dialog();
-//   assert(d);
-//   return d->do_modal(hwnd,L"Title ",200,32,200,180,WS_CAPTION | WS_SYSMENU | DS_SETFONT | DS_MODALFRAME); 
-//   // return dialog_modal(hwnd,L"Title ",200,32,200,180,WS_CAPTION | WS_SYSMENU | DS_SETFONT | DS_MODALFRAME,DlgProc,(LPARAM)d); 
-// }
-
-
-class hotkey{
-private:
-   BOOL is_fail ;
-   HWND hwnd;
+class about_dlg:public dialog{
 public:
-  hotkey(HWND hwnd1){
-    hwnd = hwnd1;
-    is_fail = FALSE;
-    if (0==RegisterHotKey(hwnd, HOTKEY_ID,MOD_CONTROL, 0X4D)){
-        UnregisterHotKey(hwnd,HOTKEY_ID);
-        _log("RegisterHotKey failure!");
-        is_fail = TRUE;
-        return;
-    }
-  }
-  ~hotkey(){   
-   if(!is_fail)
-      UnregisterHotKey(hwnd,HOTKEY_ID);    
+  INT_PTR proc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
+  { 
+     switch (wm) {
+     case WM_INITDIALOG: {
+        create_label(L"best dicionary0)",20, 7, 150, 20,hwnd, 0);
+        create_button(L"OK",20, 7+30, 100, 20,hwnd, 0);  
+        return TRUE;
+      }   
+     }
+    return FALSE;
   }
 };
+BOOL dialog_test_call(HWND hwnd){
+  dialog *d = new about_dlg();
+  d->run(hwnd,L"Dict ",200,32,100,50,WS_CAPTION | WS_SYSMENU | DS_SETFONT | DS_MODALFRAME);
+  // ::msgbox("LAIA");
+  assert(d);
+  delete d ;
+  d = NULL;
+  assert(!d);
+  return TRUE;
+}
 
-class clipboard{
-public:
-  static char* get() {
-      OpenClipboard(NULL);
-      HANDLE pText = GetClipboardData(CF_TEXT);
-      CloseClipboard();
-      LPVOID text = GlobalLock(pText);
-      return (char*)text;
-  }  
-  static void set(const char* output)
-  {    
-    const size_t len = strlen(output) + 1;
-    HGLOBAL hMem =  GlobalAlloc(GMEM_MOVEABLE, len);
-    memcpy(GlobalLock(hMem), output, len);
-    GlobalUnlock(hMem);
-    OpenClipboard(0);
-    EmptyClipboard();
-    SetClipboardData(CF_TEXT, hMem);
-    CloseClipboard();
-  }
-};
 class dict_edit:public edit{
 protected:
   void on_enter();
@@ -185,18 +161,10 @@ public:
   		//create_link(TRUE);
   		create_menu(hwnd);
       key = new hotkey(hwnd);
-      dialog_test_call(hwnd_handle);
+      // dialog_test_call(hwnd_handle);
 	  	return 0;
 	}
-	void msgbox1(LPCTSTR msg){
-  		_log("hwnd_handle:%d",hwnd_handle)	;
-  		MessageBox(
-	        NULL,
-	        (LPCTSTR)msg,
-	        (LPCTSTR)L"tip",
-	        MB_OK
-	    );
-  	}
+
   void msgbox(LPCTSTR msg){
     dialog_test_call(hwnd_handle);
   }
@@ -222,34 +190,7 @@ void dict_edit::on_enter()
 }
 
 
-class mutex{
-  HANDLE hMutex ; 
-public:
-    mutex(){
 
-    }
-    ~mutex(){
-      CloseHandle(hMutex) ;
-    }
-  BOOL check(){
-    hMutex = CreateMutex(NULL, TRUE, "Global\\DFFDFD-C1733E55-A6FD-47D5-8638-053E938E08B8");
-      if ( hMutex )
-      {
-         if( GetLastError() == ERROR_ALREADY_EXISTS )
-         {
-            CloseHandle( hMutex );
-            return TRUE;
-         }
-      }       
-      return FALSE;
-  }
-  void restore_last(char* windowName)
-  {
-    HWND firstInstance = FindWindow(windowName,NULL);
-    ShowWindow(firstInstance, 1);
-    SetForegroundWindow(firstInstance);
-  }
-};
 
 
 int PASCAL WinMain(HINSTANCE hinst, HINSTANCE pinst, LPSTR cmdline, int show)

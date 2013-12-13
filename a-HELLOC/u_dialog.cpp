@@ -129,3 +129,28 @@ BOOL dialog_modal(HWND hwnd,LPCWSTR pszTitle,WORD X,WORD Y,WORD W,WORD H,DWORD S
  return fSuccess;
 }
 
+#include "u_dialog.h"
+
+
+
+dialog* d ;
+INT_PTR CALLBACK DlgProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
+{ 
+  if (wm == WM_INITDIALOG)
+    d = (dialog*)lParam; 
+  // if ((wm==WM_COMMAND) &&  (GET_WM_COMMAND_ID(wParam, lParam) == IDCANCEL)) {
+  
+  if ((wm==WM_COMMAND) ) {
+    EndDialog(hwnd, 0);
+    // delete d ;
+    // d = NULL;
+    return FALSE;
+  }else if(d)  {
+    return d->proc(hwnd,wm,wParam,lParam);
+  }
+} 
+BOOL dialog::run(HWND hwnd,LPCWSTR pszTitle,WORD X,WORD Y,WORD W,WORD H,DWORD STYLE)
+{
+  // assert(this);
+  return dialog_modal(hwnd,pszTitle,X,Y,W,H,STYLE,DlgProc,(LPARAM)this);
+}
