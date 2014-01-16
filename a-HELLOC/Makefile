@@ -1,6 +1,6 @@
 _lib=-lws2_32 -lole32 -luuid -lShlwapi -lcomctl32 
 
-all:bigbang.exe  bbi_correct.exe bbi_bang.exe msgbox_doesnt_appear.exe why_deletefile_failure.exe mutex.exe k.exe
+all:k.exe
 mutex.exe:mutex.cpp
 	g++ -mwindows mutex.cpp -o mutex.exe -static
 hello.res:hello.rc

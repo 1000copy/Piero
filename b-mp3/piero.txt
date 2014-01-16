@@ -1,0 +1,8 @@
+2013:11:1216:36:23 hwnd_handle editproc:657142 [u_win.h][line: 234] 
+2013:11:1216:41:40 hwnd_handle:13436448 [hello.cpp][line: 180] 
+2013:12:0915:31:52 hwnd_handle:1246296 [hello.cpp][line: 180] 
+2013:12:0915:32:08 hwnd_handle editproc:132504 [u_win.h][line: 234] 
+2013:12:0915:32:14 hwnd_handle:1311832 [hello.cpp][line: 180] 
+2013:12:1314:19:34 hwnd_handle editproc:5309342 [u_win.h][line: 234] 
+2013:12:1314:27:56 hwnd_handle editproc:3802082 [u_win.h][line: 234] 
+2013:12:1314:32:08 hwnd_handle editproc:2556714 [u_win.h][line: 234] 
