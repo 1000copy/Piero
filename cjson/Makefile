@@ -1,5 +1,5 @@
 all:r1.out 
 r1.out:cJSON.c test.cpp
-	g++ cJSON.c test.cpp -o r1.out
+	clang++ cJSON.c test.cpp -o r1.out -lstdc++
 clean:
 	rm *.out

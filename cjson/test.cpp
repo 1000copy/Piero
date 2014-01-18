@@ -184,10 +184,12 @@ public:
 		j->parse();
 	}
 	int get_age(){
-		return j->get_int("age");
+		char age[] = "age";
+		return j->get_int(age);
 	}
 	char*get_name(){
-		return j->get_string("name");
+		char name[] = "name";
+		return j->get_string(name);
 	}
 	~jack(){
 		j->complete();
