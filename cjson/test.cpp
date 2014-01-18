@@ -22,8 +22,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include "cJSON.h"
-
+// use namespace std;
 /* Parse text to JSON, then render back to text, and print! */
 void doit(char *text)
 {
@@ -147,47 +148,61 @@ void t1(){
 	char text6[]="{\n\"name\": \"Jack\"\n}";	
 	do1(text6);
 }
-void t2(){
-	char text[]="{\n\"name\": \"Jack\"\n}";	
-	cJSON *json;
-	json=cJSON_Parse(text);
-	if (!json) {printf("Error before: [%s]\n",cJSON_GetErrorPtr());}
-	else
-	{
-		
-		char *name = cJSON_GetObjectItem(json,"name")->valuestring;
-		printf("name:%s\n", name);
-		cJSON_Delete(json);
+
+class json{
+	cJSON *j;
+	char *text;
+public:
+	json(char *t){
+		text = t;
 	}
-}
+	int parse(){
+		j =cJSON_Parse(text);
+		if (!j) {
+			printf("Error before: [%s]\n",cJSON_GetErrorPtr());
+			return 0;
+		}
+		return 1;
+	}
+	char *get_string(char*key){
+		return cJSON_GetObjectItem(j,key)->valuestring;
+	}
+	int get_int(char*key){
+		return cJSON_GetObjectItem(j,key)->valueint;
+	}
+	void complete(){
+		cJSON_Delete(j);
+	}
+	~json(){}
+};
+class jack{
+	json *j;
+public:
+	jack(){
+		char text[]="{\n\"name\": \"Jack1\"\n,\"age\":1}";	
+		j = new json(text);
+		j->parse();
+	}
+	int get_age(){
+		return j->get_int("age");
+	}
+	char*get_name(){
+		return j->get_string("name");
+	}
+	~jack(){
+		j->complete();
+		delete j;
+	}
+};
 
-int main1 (int argc, const char * argv[]) {
-	/* a bunch of json: */
-	char text1[]="{\n\"name\": \"Jack (\\\"Bee\\\") Nimble\", \n\"format\": {\"type\":       \"rect\", \n\"width\":      1920, \n\"height\":     1080, \n\"interlace\":  false,\"frame rate\": 24\n}\n}";	
-	char text2[]="[\"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\"]";
-	char text3[]="[\n    [0, -1, 0],\n    [1, 0, 0],\n    [0, 0, 1]\n	]\n";
-	char text4[]="{\n		\"Image\": {\n			\"Width\":  800,\n			\"Height\": 600,\n			\"Title\":  \"View from 15th Floor\",\n			\"Thumbnail\": {\n				\"Url\":    \"http:/*www.example.com/image/481989943\",\n				\"Height\": 125,\n				\"Width\":  \"100\"\n			},\n			\"IDs\": [116, 943, 234, 38793]\n		}\n	}";
-	char text5[]="[\n	 {\n	 \"precision\": \"zip\",\n	 \"Latitude\":  37.7668,\n	 \"Longitude\": -122.3959,\n	 \"Address\":   \"\",\n	 \"City\":      \"SAN FRANCISCO\",\n	 \"State\":     \"CA\",\n	 \"Zip\":       \"94107\",\n	 \"Country\":   \"US\"\n	 },\n	 {\n	 \"precision\": \"zip\",\n	 \"Latitude\":  37.371991,\n	 \"Longitude\": -122.026020,\n	 \"Address\":   \"\",\n	 \"City\":      \"SUNNYVALE\",\n	 \"State\":     \"CA\",\n	 \"Zip\":       \"94085\",\n	 \"Country\":   \"US\"\n	 }\n	 ]";
-
-	t2();
-	// doit(text2);	
-	// doit(text3);
-	// doit(text4);
-	// doit(text5);
-
-	/* Parse standard testfiles: */
-/*	dofile("../../tests/test1"); */
-/*	dofile("../../tests/test2"); */
-/*	dofile("../../tests/test3"); */
-/*	dofile("../../tests/test4"); */
-/*	dofile("../../tests/test5"); */
-
-	/* Now some samplecode for building objects concisely: */
-	// create_objects();
-	
-	return 0;
-}
 int main (int argc, const char * argv[]) {
-	t2();
+	char text[]="{\n\"name\": \"Jack1\"\n,\"age\":1}";	
+	// std::string s (text);
+	// std::replace( s.begin(), s.end(), '\'', '"');
+	// // printf("xyz:%s\n",s.c_str());
+	// json* j = new json(s.c_str());
+	jack j ;
+	printf("name :%s\n",j.get_name());
+	printf("age  :%d\n",j.get_age());
 	return 0;
 }
