@@ -1,4 +1,4 @@
-1. command:
+1. 登录
 
 wget http://www.douban.com/j/app/login --post-data="app_name=radio_desktop_win&version=100&email=1000copy@gmail.com&password=***""
 
@@ -13,3 +13,53 @@ response:
 	"user_name":"1000copy",
 	"email":"1000copy@gmail.com"
 }
+
+保存 user_id，token和expire后，在使用获取歌曲列表、红心等API时，把它们放到请求参数中即可
+
+2. 获取频道列表
+
+wget http://www.douban.com/j/app/radio/channels
+
+response:
+
+{
+    "channels": [
+        {
+            "name": "私人兆赫",
+            "seq_id": 0,
+            "abbr_en": "My",
+            "channel_id": 0,
+            "name_en": "Personal Radio"
+        },
+        {
+            "name": "华语",
+            "seq_id": 1,
+            "abbr_en": "CH",
+            "channel_id": 1,
+            "name_en": "Chinese"
+        },
+        {
+            "name": "欧美",
+            "seq_id": 2,
+            "abbr_en": "EN",
+            "channel_id": 2,
+            "name_en": "Euro-American"
+        },
+        ...
+}
+
+有channel_id，这个id用于请求相应的歌曲列表
+
+3. 歌曲列表(新一批)
+
+
+固定：app_name=radio_desktop_win&version=100
+登陆后获得的：user_id=1830596&token=717dbe7097&expire=1405749845
+
+登录后获得的歌曲列表
+wget "http://www.douban.com/j/app/radio/people?app_name=radio_desktop_win&version=100&user_id=1830596&token=717dbe7097&expire=1405749845&type=n&channel=1"
+
+登录前获得的歌曲列表
+wget "http://www.douban.com/j/app/radio/people?app_name=radio_desktop_win&version=100&type=n&channel=0"
+
+一次返回4首。快放完的时候，可以再type=n的获取一批新的。
